@@ -1,0 +1,36 @@
+.game-board {
+  display: grid;
+  grid-template-columns: repeat(10, 40px);
+  grid-template-rows: repeat(10, 40px);
+  gap: 2px;
+  margin: 20px auto;
+}
+
+.cell {
+  width: 40px;
+  height: 40px;
+  background-color: #ddd;
+  border: 1px solid #aaa;
+  box-sizing: border-box;
+}
+
+.cell.stone {
+  background-color: #444;
+  border: 2px solid #222;
+}
+
+.cell.player {
+  background-color: dodgerblue;
+  border: 2px solid #005;
+}
+
+.cell.bomb {
+  background-color: red;
+  border: 2px solid darkred;
+}
+
+.cell.explosion {
+  background-color: orange;
+  border: 2px solid red;
+}
+
