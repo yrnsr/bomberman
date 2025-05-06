@@ -123,5 +123,4 @@ const GameBoard = () => {
 
   return <div className="game-board">{cells}</div>;
 };
-
 export default GameBoard;
