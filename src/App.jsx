@@ -1,23 +1,20 @@
-import React, { useState } from 'react';
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
-import './styles/App.css';
+import GamePage from './pages/GamePage';
 
 const App = () => {
-  const [isLogin, setIsLogin] = useState(true); // Başlangıçta login ekranı görünsün
-
-  const togglePage = () => {
-    setIsLogin(!isLogin); // Login ile Register arasında geçiş yapacak
-  };
-
   return (
-    <div className="app-container">
-      {isLogin ? (
-        <LoginPage togglePage={togglePage} />
-      ) : (
-        <RegisterPage togglePage={togglePage} />
-      )}
-    </div>
+    <Router>
+      <Routes>
+        <Route path="/" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
+        <Route path="/game" element={<GamePage />} />
+        {/* Eğer bilinmeyen bir sayfaya gidilirse login'e yönlendir */}
+        <Route path="*" element={<Navigate to="/" />} />
+      </Routes>
+    </Router>
   );
 };
 

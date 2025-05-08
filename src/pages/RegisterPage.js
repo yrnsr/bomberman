@@ -1,14 +1,34 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import './RegisterPage.css';
 
-const RegisterPage = ({ togglePage }) => {
+const RegisterPage = () => {
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Burada register işlemi yapılacak
+
+    try {
+      const response = await fetch('http://localhost:5000/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ username, email, password }),
+      });
+
+      if (response.ok) {
+        console.log("Kayıt başarılı");
+        navigate('/game');
+      } else {
+        alert("Kayıt başarısız");
+      }
+    } catch (error) {
+      console.error("Kayıt sırasında hata:", error);
+    }
   };
 
   return (
@@ -21,24 +41,27 @@ const RegisterPage = ({ togglePage }) => {
             placeholder="Kullanıcı Adı"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
+            required
           />
           <input
             type="email"
             placeholder="Email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            required
           />
           <input
             type="password"
             placeholder="Şifre"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            required
           />
           <button type="submit">Kayıt Ol</button>
         </form>
         <p>
-          Zaten bir hesabınız var mı?{' '}
-          <span className="auth-switch" onClick={togglePage}>
+          Zaten bir hesabın var mı?{' '}
+          <span className="link" onClick={() => navigate('/')}>
             Giriş Yap
           </span>
         </p>

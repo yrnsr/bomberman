@@ -79,3 +79,9 @@
     }
   }
   
+  .link {
+    color: #602d87;
+    cursor: pointer;
+    text-decoration: underline;
+  }
+  

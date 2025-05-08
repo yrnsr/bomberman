@@ -1,9 +1,13 @@
 import React from 'react';
 import GameBoard from '../components/GameBoard';
-import '../components/GameBoard.css';
 
 const GamePage = () => {
-  return <GameBoard />;
+  return (
+    <div>
+      <h2>Bomberman Oyununa Hoş Geldin!</h2>
+      <GameBoard />
+    </div>
+  );
 };
 
 export default GamePage;
