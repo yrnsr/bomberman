@@ -21,6 +21,7 @@ const RegisterPage = () => {
       });
 
       if (response.ok) {
+        localStorage.setItem("username", username); // 👈 kullanıcı adını sakla
         console.log("Kayıt başarılı");
         navigate('/game');
       } else {
