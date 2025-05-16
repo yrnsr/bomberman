@@ -18,43 +18,43 @@
   border-radius: 4px;
 }
 
-/* Taş duvar */
+
 .cell.stone {
   background-image: url('/src/pictures/wall.png');
 }
 
-/* Kırılabilir kutu */
+
 .cell.destructible {
   background-color: rgb(111, 52, 52);
 }
 
-/* Senin oyuncun */
+
 .cell.player {
   background-image: url('/src/pictures/player.jfif');
   background-size: 40px 40px;
 }
 
-/* Diğer oyuncular */
+
 .cell.other-player {
   background-color: purple;
   border: 2px solid yellow;
 }
 
-/* Bomba */
+
 .cell.bomb {
   background-color: red;
   background-image: url('/src/pictures/bomb.png'); /* Opsiyonel görsel */
   background-size: 30px 30px;
 }
 
-/* Patlama efekti */
+
 .cell.explosion {
   background-color: orange;
   background-image: url('/src/pictures/explosion.jfif'); /* Opsiyonel görsel */
   background-size: 35px 35px;
 }
 
-/* Skor tablosu */
+
 .scoreboard {
   position: fixed;
   top: 50px;
