@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import './GameBoard.css';
 
 const initialMapTemplate = [
@@ -18,10 +18,14 @@ const GameBoard = () => {
   const gridSize = 10;
   const [map, setMap] = useState(initialMapTemplate.map(row => [...row]));
   const [playerPos, setPlayerPos] = useState({ row: 0, col: 0 });
+  const [otherPlayers, setOtherPlayers] = useState({});
   const [bombs, setBombs] = useState([]);
   const [explosions, setExplosions] = useState([]);
   const [scorePlayer1, setScorePlayer1] = useState(0);
-  const [scorePlayer2] = useState(0); // İleride kullanılabilir
+  const [scorePlayer2] = useState(0);
+
+  const socketRef = useRef(null);
+  const playerId = useRef(`player_${Math.floor(Math.random() * 100000)}`);
 
   const isMovable = (row, col) => {
     return (
@@ -36,16 +40,31 @@ const GameBoard = () => {
 
   const handleKeyDown = (e) => {
     let { row, col } = playerPos;
+    let moved = false;
 
-    if (e.key === 'ArrowUp' && isMovable(row - 1, col)) row--;
-    if (e.key === 'ArrowDown' && isMovable(row + 1, col)) row++;
-    if (e.key === 'ArrowLeft' && isMovable(row, col - 1)) col--;
-    if (e.key === 'ArrowRight' && isMovable(row, col + 1)) col++;
+    if (e.key === 'ArrowUp' && isMovable(row - 1, col)) { row--; moved = true; }
+    if (e.key === 'ArrowDown' && isMovable(row + 1, col)) { row++; moved = true; }
+    if (e.key === 'ArrowLeft' && isMovable(row, col - 1)) { col--; moved = true; }
+    if (e.key === 'ArrowRight' && isMovable(row, col + 1)) { col++; moved = true; }
 
-    setPlayerPos({ row, col });
+    if (moved) {
+      const newPos = { row, col };
+      setPlayerPos(newPos);
+      sendPosition(newPos);
+    }
 
     if (e.code === 'Space') {
       dropBomb(row, col);
+    }
+  };
+
+  const sendPosition = (position) => {
+    if (socketRef.current?.readyState === WebSocket.OPEN) {
+      socketRef.current.send(JSON.stringify({
+        type: 'move',
+        playerId: playerId.current,
+        position
+      }));
     }
   };
 
@@ -78,7 +97,6 @@ const GameBoard = () => {
         const nc = col + dc * i;
 
         if (nr < 0 || nr >= gridSize || nc < 0 || nc >= gridSize) break;
-
         if (newMap[nr][nc] === 1) break;
 
         explosionArea.push({ row: nr, col: nc });
@@ -118,6 +136,34 @@ const GameBoard = () => {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [playerPos, bombs, map]);
 
+  useEffect(() => {
+    socketRef.current = new WebSocket('ws://localhost:8080');
+
+    socketRef.current.onopen = () => {
+      console.log('Bağlantı kuruldu');
+      sendPosition(playerPos);
+    };
+
+    socketRef.current.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      if (data.type === 'move' && data.playerId !== playerId.current) {
+        setOtherPlayers(prev => ({ ...prev, [data.playerId]: data.position }));
+      }
+    };
+
+    socketRef.current.onerror = (err) => {
+      console.error('WebSocket hatası:', err);
+    };
+
+    socketRef.current.onclose = () => {
+      console.log('Bağlantı kapandı');
+    };
+
+    return () => {
+      socketRef.current?.close();
+    };
+  }, []);
+
   const cells = [];
 
   for (let row = 0; row < gridSize; row++) {
@@ -126,6 +172,7 @@ const GameBoard = () => {
       const isStone = cellValue === 1;
       const isDestructible = cellValue === 2;
       const isPlayer = playerPos.row === row && playerPos.col === col;
+      const isOtherPlayer = Object.values(otherPlayers).some(p => p.row === row && p.col === col);
       const isBomb = bombs.some(b => b.row === row && b.col === col);
       const isExplosion = explosions.some(e => e.row === row && e.col === col);
 
@@ -136,6 +183,7 @@ const GameBoard = () => {
             ${isStone ? 'stone' : ''} 
             ${isDestructible ? 'destructible' : ''}
             ${isPlayer ? 'player' : ''} 
+            ${isOtherPlayer ? 'other-player' : ''} 
             ${isBomb ? 'bomb' : ''} 
             ${isExplosion ? 'explosion' : ''}`}
         />
@@ -156,7 +204,6 @@ const GameBoard = () => {
           <button onClick={newGame}>🆕 Yeni Oyun</button>
         </div>
       </div>
-
       <div className="game-board">
         {cells}
       </div>
@@ -165,8 +212,3 @@ const GameBoard = () => {
 };
 
 export default GameBoard;
-
-
-/*skor tablosuna isim eklenecek 
-görseller iyileştirilecek
-*/ 
